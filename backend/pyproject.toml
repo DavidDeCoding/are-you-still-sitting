@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "vision_backend"
+version = "0.1.0"
+description = ""
+authors = ["daviddecoding <daviddecoding@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.92.0"
+uvicorn = "^0.20.0"
+magnum = "^15.0.1"
+pydantic = "^1.10.5"
+twilio = "^7.16.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

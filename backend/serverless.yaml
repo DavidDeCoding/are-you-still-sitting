@@ -1,0 +1,134 @@
+service: vision-backend
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: us-west-1
+  stage: ${opt:stage, "dev"}
+  lambdaHashingVersion: "20201221"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
+      Resource:
+        - { "Fn::GetAtt": ["VisionDynamoDBTable", "Arn"] }
+  environment:
+    VISION_TABLE: ${self:custom.visionBackendTableName}
+    DOMAIN_SUFFIX: 'vision-backend'
+  httpApi:
+    authorizers:
+      serviceAuthorizer:
+        identitySource: ${request.header.Authorization}
+        issuerUrl:
+          Fn::Join:
+            - ''
+            - - 'https://cognito-idp.'
+              - '${opt:region, self:provider.region}'
+              - '.amazonaws.com/'
+              - Ref: serviceUserPool
+        audience:
+          - Ref: serviceUserPoolClient
+
+functions:
+  app:
+    package:
+      include:
+        - "vision_backend"
+      exclude:
+        - "requirements.txt"
+        - "package.json"
+        - "package-lock.json"
+        - ".serverless/**"
+        - ".virtualenv/**"
+        - "node_modules/**"
+        - ".pytest_cache"
+        - "tests/**"
+        - ".gitignore"
+        - "poetry.lock"
+        - "pyproject.toml"
+        - "README.md"
+        - "dist/**"
+    handler: vision_backend.main.handler
+    environment:
+      STAGE: ${self:provider.stage}
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: any
+          authorizer: serviceAuthorizer
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    dockerFile: Dockerfile
+  visionBackendTableName: 'vision-table-${self:provider.stage}'
+
+resources:
+  Resources:
+    HttpApi:
+      DependsOn: serviceUserPool
+    VisionDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.visionBackendTableName}
+    serviceUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: service-user-pool-${opt:stage, self:provider.stage}
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+    serviceUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: service-user-pool-client-${opt:stage, self:provider.stage}
+        AllowedOAuthFlows:
+          - implicit
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthScopes:
+          - phone
+          - email
+          - openid
+          - profile
+          - aws.cognito.signin.user.admin
+        UserPoolId:
+          Ref: serviceUserPool
+        CallbackURLs:
+          - http://localhost:3000
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+        SupportedIdentityProviders:
+          - COGNITO
+    serviceUserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      Properties:
+        UserPoolId:
+          Ref: serviceUserPool
+        Domain: service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
