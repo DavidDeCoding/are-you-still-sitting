@@ -19,6 +19,7 @@ var/
 .idea/
 __pycache__/
 node_modules/
+.vscode/
 
 # Serverless directories
 .serverless

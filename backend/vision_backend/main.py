@@ -1,4 +1,4 @@
-from magum import Magnum
+from mangum import Mangum
 from vision_backend.controller.app import app
 
-handler = Magnum(app)
+handler = Mangum(app)

@@ -27,19 +27,19 @@ provider:
   environment:
     VISION_TABLE: ${self:custom.visionBackendTableName}
     DOMAIN_SUFFIX: 'vision-backend'
-  httpApi:
-    authorizers:
-      serviceAuthorizer:
-        identitySource: ${request.header.Authorization}
-        issuerUrl:
-          Fn::Join:
-            - ''
-            - - 'https://cognito-idp.'
-              - '${opt:region, self:provider.region}'
-              - '.amazonaws.com/'
-              - Ref: serviceUserPool
-        audience:
-          - Ref: serviceUserPoolClient
+  # httpApi:
+  #   authorizers:
+  #     serviceAuthorizer:
+  #       identitySource: ${request.header.Authorization}
+  #       issuerUrl:
+  #         Fn::Join:
+  #           - ''
+  #           - - 'https://cognito-idp.'
+  #             - '${opt:region, self:provider.region}'
+  #             - '.amazonaws.com/'
+  #             - Ref: serviceUserPool
+  #       audience:
+  #         - Ref: serviceUserPoolClient
 
 functions:
   app:
@@ -67,7 +67,7 @@ functions:
       - httpApi:
           path: /{proxy+}
           method: any
-          authorizer: serviceAuthorizer
+          # authorizer: serviceAuthorizer
 
 plugins:
   - serverless-python-requirements
@@ -80,8 +80,8 @@ custom:
 
 resources:
   Resources:
-    HttpApi:
-      DependsOn: serviceUserPool
+    # HttpApi:
+    #   DependsOn: serviceUserPool
     VisionDynamoDBTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -95,40 +95,40 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.visionBackendTableName}
-    serviceUserPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UserPoolName: service-user-pool-${opt:stage, self:provider.stage}
-        UsernameAttributes:
-          - email
-        AutoVerifiedAttributes:
-          - email
-    serviceUserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: service-user-pool-client-${opt:stage, self:provider.stage}
-        AllowedOAuthFlows:
-          - implicit
-        AllowedOAuthFlowsUserPoolClient: true
-        AllowedOAuthScopes:
-          - phone
-          - email
-          - openid
-          - profile
-          - aws.cognito.signin.user.admin
-        UserPoolId:
-          Ref: serviceUserPool
-        CallbackURLs:
-          - http://localhost:3000
-        ExplicitAuthFlows:
-          - ALLOW_USER_SRP_AUTH
-          - ALLOW_REFRESH_TOKEN_AUTH
-        GenerateSecret: false
-        SupportedIdentityProviders:
-          - COGNITO
-    serviceUserPoolDomain:
-      Type: AWS::Cognito::UserPoolDomain
-      Properties:
-        UserPoolId:
-          Ref: serviceUserPool
-        Domain: service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
+    # serviceUserPool:
+    #   Type: AWS::Cognito::UserPool
+    #   Properties:
+    #     UserPoolName: service-user-pool-${opt:stage, self:provider.stage}
+    #     UsernameAttributes:
+    #       - email
+    #     AutoVerifiedAttributes:
+    #       - email
+    # serviceUserPoolClient:
+    #   Type: AWS::Cognito::UserPoolClient
+    #   Properties:
+    #     ClientName: service-user-pool-client-${opt:stage, self:provider.stage}
+    #     AllowedOAuthFlows:
+    #       - implicit
+    #     AllowedOAuthFlowsUserPoolClient: true
+    #     AllowedOAuthScopes:
+    #       - phone
+    #       - email
+    #       - openid
+    #       - profile
+    #       - aws.cognito.signin.user.admin
+    #     UserPoolId:
+    #       Ref: serviceUserPool
+    #     CallbackURLs:
+    #       - http://localhost:3000
+    #     ExplicitAuthFlows:
+    #       - ALLOW_USER_SRP_AUTH
+    #       - ALLOW_REFRESH_TOKEN_AUTH
+    #     GenerateSecret: false
+    #     SupportedIdentityProviders:
+    #       - COGNITO
+    # serviceUserPoolDomain:
+    #   Type: AWS::Cognito::UserPoolDomain
+    #   Properties:
+    #     UserPoolId:
+    #       Ref: serviceUserPool
+    #     Domain: service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
