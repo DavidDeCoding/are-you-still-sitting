@@ -14,7 +14,6 @@ class User(BaseModel):
 
     @staticmethod
     def get_user_by_id(user_id: str) -> User:
-        print("Here I am!")
         result = db_client.query(
             TableName=VISION_TABLE,
             KeyConditionExpression='userId = :userId',
@@ -23,22 +22,20 @@ class User(BaseModel):
             }
         )
 
-        print(result)
-
-        if not result['Items'] and not len(result['Items']):
+        if not result['Items'] or not len(result['Items']):
             return None
         
         result = result['Items'][0]
 
         return User(user_id=result['userId']['S'],
-                    is_sitting=result['isSitting']['S'])
+                    is_sitting=result['isSitting']['BOOL'])
 
 
     def save(self):
         db_client.put_item(
-            TableName=COUPONS_TABLE,
+            TableName=VISION_TABLE,
             Item={
                 'userId': {'S': self.user_id},
-                'isSitting': {'S': self.is_sitting}
+                'isSitting': {'BOOL': self.is_sitting}
             }
         )

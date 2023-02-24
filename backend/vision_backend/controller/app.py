@@ -21,16 +21,16 @@ def health() -> int:
 
 @app.post("/sitting/{user_id}")
 def sitting(user_id: str, payload: Payload) -> str:
-    print("Here I am!")
-    user = User.get_user_by_id(user_id)
+    current_is_sitting = payload.is_sitting
 
+    user = User.get_user_by_id(user_id)
     if not user:
-        user = User(user_id, is_sitting)
-    elif user.is_sitting != is_sitting:
-        user.is_sitting = is_sitting
+        user = User(user_id=user_id, 
+                    is_sitting=current_is_sitting)
+    elif user.is_sitting != current_is_sitting:
+        user.is_sitting = current_is_sitting
     else:
         return 'Success'
-    
     user.save()
     
     return 'Success'
