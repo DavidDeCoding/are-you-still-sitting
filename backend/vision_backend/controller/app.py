@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 import os
+import datetime
 from twilio.rest import Client
 
 from vision_backend.services.user import User
@@ -25,8 +26,11 @@ def sitting(user_id: str, payload: Payload) -> str:
 
     user = User.get_user_by_id(user_id)
     if not user:
+        timestamp = str(int(datetime.datetime.utcnow().timestamp()))
+
         user = User(user_id=user_id, 
-                    is_sitting=current_is_sitting)
+                    is_sitting=current_is_sitting,
+                    timestamp=timestamp)
     elif user.is_sitting != current_is_sitting:
         user.is_sitting = current_is_sitting
     else:
