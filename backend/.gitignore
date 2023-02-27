@@ -21,6 +21,7 @@ node_modules/
 data/
 models/
 .DS_Store
+config/
 
 # Serverless directories
 .serverless
