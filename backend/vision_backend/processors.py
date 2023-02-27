@@ -1,5 +1,7 @@
 from vision_backend.services.user import User
+from vision_backend.services.call import Caller
 from datetime import datetime
+
 
 def process(event, context):
     now = datetime.utcnow()
@@ -11,3 +13,5 @@ def process(event, context):
         print(f'User {user.user_id} sitting for {delta_in_mins} mins.')
         if int(delta_in_mins) > 30:
             print(f'User {user.user_id} has been sitting for more than 30 mins.')
+            call = Caller.make_call()
+            print(f'Called user with sid: {call.sid}')

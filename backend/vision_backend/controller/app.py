@@ -30,7 +30,8 @@ def sitting(user_id: str, payload: Payload) -> str:
 
         user = User(user_id=user_id, 
                     is_sitting=current_is_sitting,
-                    timestamp=timestamp)
+                    timestamp=timestamp,
+                    notified=False)
     elif user.is_sitting != current_is_sitting:
         user.is_sitting = current_is_sitting
     else:

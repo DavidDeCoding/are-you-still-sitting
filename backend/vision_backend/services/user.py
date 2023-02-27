@@ -14,6 +14,7 @@ class User(BaseModel):
     user_id: str
     is_sitting: bool
     timestamp: int
+    notified: bool
 
     @staticmethod
     def get_user_by_id(user_id: str) -> User:
@@ -32,7 +33,8 @@ class User(BaseModel):
 
         return User(user_id=result['userId']['S'],
                     is_sitting=result['isSitting']['BOOL'],
-                    timestamp=result['timestamp']['N'])
+                    timestamp=result['timestamp']['N'],
+                    notified=result['notified']['BOOL'])
 
     @staticmethod
     def get_user_by_sitting() -> List[User]:
@@ -49,7 +51,8 @@ class User(BaseModel):
         
         return [User(user_id=item['userId']['S'], 
                      is_sitting=item['isSitting']['BOOL'],
-                     timestamp=item['timestamp']['N']) for item in result['Items']]
+                     timestamp=item['timestamp']['N'],
+                     notified=item['notified']['BOOL']) for item in result['Items']]
 
     def save(self):
         db_client.put_item(
@@ -57,6 +60,7 @@ class User(BaseModel):
             Item={
                 'userId': {'S': self.user_id},
                 'isSitting': {'BOOL': self.is_sitting},
-                'timestamp': {'N': str(self.timestamp)}
+                'timestamp': {'N': str(self.timestamp)},
+                'notified': {'BOOL': self.notified}
             }
         )
