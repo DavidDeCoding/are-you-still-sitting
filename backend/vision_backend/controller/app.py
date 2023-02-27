@@ -34,6 +34,7 @@ def sitting(user_id: str, payload: Payload) -> str:
                     notified=False)
     elif user.is_sitting != current_is_sitting:
         user.is_sitting = current_is_sitting
+        user.notified = False
     else:
         return 'Success'
     user.save()
