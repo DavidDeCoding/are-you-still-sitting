@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 import boto3
 import os
+import datetime
 
 from boto3.dynamodb.conditions import Key, Attr
 
@@ -57,6 +58,24 @@ class User(BaseModel):
                      timestamp=item['timestamp']['N'],
                      phone=item['phone']['S'],
                      notified=item['notified']['BOOL']) for item in result['Items']]
+
+    @staticmethod
+    def get_user_by_access_token(access_token: str) -> User:
+        response = cognito_client.get_user(AccessToken=access_token)
+
+        user = User.get_user_by_id(response['Username'])
+
+        if not user:
+            timestamp = str(int(datetime.datetime.utcnow().timestamp()))
+
+            user = User(user_id=response['Username'],
+                        is_sitting=False,
+                        timestamp=timestamp,
+                        phone='',
+                        notified=False)
+            user.save()
+        
+        return user
 
     def save(self):
         db_client.put_item(

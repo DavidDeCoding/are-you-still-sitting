@@ -1,6 +1,6 @@
 from typing import Union
 
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, Header, Request
 from pydantic import BaseModel
 
 import os
@@ -15,45 +15,39 @@ openapi_prefix = f"/{stage}" if stage else "/"
 app = FastAPI(title="Are you still sitting?",
               openapi_prefix=openapi_prefix)
 
-class Payload(BaseModel):
+class InitPayload(BaseModel):
     phone: str
-    is_sitting: bool
 
-@app.get("/health")
+@app.get("/web/health")
 def health() -> int:
     return 1
 
-@app.post("/init")
-def init(authorization: Union[str, None] = Header(default=None),
-         payload: Payload) -> str:
-    user_details = User.get_details(authorization)
-    user_id = user_details['username']
+class InitPayload(BaseModel):
+    phone: str
 
-    timestamp = str(int(datetime.datetime.utcnow().timestamp()))
-
-    user = User(user_id=user_id,
-                is_sitting=False,
-                timestamp=timestamp,
-                phone=payload.phone,
-                notified=False)
+@app.post("/web/init")
+def init(payload: InitPayload,
+         authorization: Union[str, None] = Header(default=None)) -> str:
+    
+    user = User.get_user_by_access_token(authorization)
+    user.phone = payload.phone
     user.save()
 
     return 'Success'
 
-@app.post("/sitting")
-def sitting(authorization: Union[str, None] = Header(default=None), 
-            payload: Payload) -> str:
+class SittingPayload(BaseModel):
+    is_sitting: bool
 
-    user_details = User.get_details(authorization)
-    user_id = user_details['username']
+@app.post("/web/sitting")
+def sitting(payload: SittingPayload,
+            authorization: Union[str, None] = Header(default=None)) -> str:
 
     timestamp = str(int(datetime.datetime.utcnow().timestamp()))
-    
-    user = User.get_user_by_id(user_id)
+
+    user = User.get_user_by_access_token(authorization)
     user.timestamp = timestamp
     user.is_sitting = payload.is_sitting
     user.notified = False
-    
     user.save()
     
     return 'Success'
