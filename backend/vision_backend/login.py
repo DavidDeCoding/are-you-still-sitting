@@ -10,7 +10,6 @@ def signup(event, context):
     event_body = json.loads(event['body'])
     username = event_body['username']
     password = event_body['password']
-    phone_number = event_body['phone_number']
     email = event_body['email']
 
     response = client.sign_up(
@@ -20,9 +19,6 @@ def signup(event, context):
         UserAttributes=[{
             'Name': 'email',
             'Value': email
-        }, {
-            'Name': 'phone_number',
-            'Value': phone_number
         }]
     )
 
@@ -59,6 +55,6 @@ def login(event, context):
     )
 
     if response['AuthenticationResult']:
-        return response['AuthenticationResult']['IdToken']
+        return response['AuthenticationResult']['AccessToken']
 
-    return 'Failed'
+    return 'Failed'    
