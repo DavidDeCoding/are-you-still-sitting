@@ -22,7 +22,7 @@ def signup(event, context):
         }]
     )
 
-    if not response['UserConfirmed']:
+    if 'UserConfirmed' not in response:
         return 'Failed'
 
     return 'Success'

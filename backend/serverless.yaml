@@ -30,7 +30,6 @@ provider:
     ACCOUNT_SID: ${file(./config/${opt:stage, 'dev'}.json):ACCOUNT_SID}
     AUTH_TOKEN: ${file(./config/${opt:stage, 'dev'}.json):AUTH_TOKEN}
     APP_PHONE_NUMBER: ${file(./config/${opt:stage, 'dev'}.json):APP_PHONE_NUMBER}
-    USER_PHONE_NUMBER: ${file(./config/${opt:stage, 'dev'}.json):USER_PHONE_NUMBER}
     USER_POOL_ID:
       Ref: serviceUserPool
     APP_CLIENT_ID:

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 import os
+from twilio.rest import Client
 
 TWILIO_ACCOUNT_SID = os.environ['ACCOUNT_SID']
 TWILIO_AUTH_TOKEN = os.environ['AUTH_TOKEN']
