@@ -1,5 +1,7 @@
 # are-you-still-sitting
 
+[![IMAGE ALT TEXT HERE](https://miro.medium.com/v2/resize:fit:300/format:webp/1*bGUzKYOJatNW1OwUlSSWNA.png)](https://www.youtube.com/shorts/K6z_U2oUr_Q)
+
 This App takes input from a RTSP server can be IP Camera or just your iPhone and call you when you are sitting more than 30 mins at a stretch.
 
 It has 2 main parts:
